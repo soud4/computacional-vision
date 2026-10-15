@@ -1,0 +1,45 @@
+[project]
+name = "vision-contador"
+version = "0.1.0"
+description = "Deteccion, clasificacion y conteo de objetos con webcam, PDI, YOLO y Arduino"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "PySide6>=6.7",
+    "numpy>=1.26",
+    "pyserial>=3.5",
+]
+
+[project.optional-dependencies]
+vision = ["opencv-python>=4.10"]
+yolo = ["ultralytics>=8.3"]
+voz = ["edge-tts>=6.1"]
+api = ["anthropic>=0.40", "pillow>=10.0"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+vision-contador = "vision_contador.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vision_contador"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+# Fijado para que «ruff check» de el mismo resultado hoy y con la version de
+# ruff del mes que viene: sin esto cada version nueva estrena reglas y el
+# proyecto aparece roto sin haber cambiado una linea.
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "RUF"]
+# Las capturas amplias (BLE001, S110) son deliberadas: en los hilos del enlace
+# una excepcion no atrapada mata el hilo en silencio y la placa parece muerta.
+ignore = ["E501"]

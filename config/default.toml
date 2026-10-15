@@ -1,0 +1,95 @@
+# Configuracion por defecto de Vision Contador.
+# Copie este archivo a config/usuario.toml para sobrescribir valores sin tocar el original.
+# El unico interruptor que decide entre simulacion y hardware real es [general].modo.
+
+[general]
+# "demo" usa los adaptadores simulados; "real" usa camara, YOLO, Arduino y voz de verdad.
+modo = "demo"
+# Carpeta donde se guardan el CSV y las imagenes de cada captura.
+carpeta_registro = "capturas"
+
+[camara]
+# "local" usa la camara conectada a esta maquina ("indice") y "red" la camara
+# del celular u otra camara IP ("url"). Subir una imagen desde el boton Capturar
+# cambia la fuente solo durante esa sesion; no se guarda aqui.
+fuente = "local"
+indice = 0
+# Direccion que publica la aplicacion del celular (IP Webcam, DroidCam...).
+# Ambos equipos tienen que estar en la misma red WiFi.
+url = ""
+ancho = 1280
+alto = 720
+fps = 30
+# Cuadros que se descartan del bufer antes de tomar la foto definitiva.
+cuadros_a_descartar = 5
+
+[preprocesamiento]
+activo = true
+gamma = 0.65
+kernel_suavizado = 3
+umbral_brillo = 90
+umbral_contraste = 40
+modo_adaptativo = true
+
+[preprocesamiento.etapas]
+geometrica = true
+gamma = true
+ecualizacion = true
+suavizado = true
+mascara_roi = true
+
+[preprocesamiento.roi]
+x = 120
+y = 80
+ancho = 1040
+alto = 560
+
+[detector]
+# "mock", "yolo" o "api". Solo se usa en modo real: el modo demo
+# siempre emplea el detector simulado.
+backend = "yolo"
+confianza_minima = 0.50
+modelo = "YOLO11n"
+pesos = "yolo11n.pt"
+
+[detector.api]
+proveedor = "anthropic"
+modelo = "claude-sonnet-5-5"
+# La clave se lee de la variable de entorno ANTHROPIC_API_KEY, nunca de este archivo.
+
+# --- Placas actuadoras ---------------------------------------------------------
+# Una entrada [[placas]] por cada placa. Se conectan todas a la vez y todas
+# reciben las mismas ordenes, asi que pueden convivir un Arduino por USB y un
+# ESP32 por WiFi sin tocar una linea de codigo.
+#
+#   transporte = "serie"  -> destino es un puerto: "/dev/ttyACM0", "COM3"
+#                            o "" para autodetectar
+#   transporte = "tcp"    -> destino es "tcp://192.168.4.1:3333"
+
+[[placas]]
+nombre = "Arduino"
+transporte = "serie"
+destino = ""
+baudios = 9600
+reconectar = true
+
+# Descomente para anadir un ESP32 por WiFi. Vea docs/PLAN_ESP32.md.
+# [[placas]]
+# nombre = "ESP32"
+# transporte = "tcp"
+# destino = "tcp://192.168.4.1:3333"
+# reconectar = true
+
+# Configuracion antigua de una sola placa por cable. Solo se usa si no hay
+# ninguna entrada [[placas]]; se conserva por compatibilidad.
+[arduino]
+puerto = ""
+baudios = 9600
+tiempo_limite_s = 2.0
+reconectar = true
+
+[voz]
+# "mock" o "edge-tts". Solo se usa en modo real.
+backend = "edge-tts"
+voz = "es-PE-CamilaNeural"
+carpeta_cache = "cache/voz"
